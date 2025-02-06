@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Role {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 角色与权限的关联
+  permissions RolePermission[]
+
+  // 角色与用户信息的关联
+  userInfos UserInfo[]
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  role       Role            @relation(fields: [roleId], references: [id])
+  permission UserPermissions @relation(fields: [permissionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, permissionId]) // 确保角色和权限的组合唯一
+}
+
+model UserPermissions {
+  id         String         @id @default(uuid())
+  name       String
+  label      String
+  type       PermissionType
+  route      String
+  order      Int?
+  icon       String?
+  component  String?
+  hideInMenu Boolean?       @default(false)
+  hide       Boolean?       @default(false)
+
+  parentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 权限与角色的关联
+  roles      RolePermission[]
+  UserInfo   UserInfo?        @relation(fields: [userInfoId], references: [id])
+  userInfoId String?
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  name   String?
+  avatar String?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  UserInfo  UserInfo[]
+  Tokens    Token[]
+}
+
+enum PermissionType {
+  CATALOGUE @map("0")
+  MENU      @map("1")
+  BUTTON    @map("2")
+}
+
+model UserInfo {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  permissions UserPermissions[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Token {
+  id           String @id @default(uuid())
+  token        String
+  refreshToken String
+  userId       String
+  user         User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
