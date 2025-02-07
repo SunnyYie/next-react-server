@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -46,8 +50,33 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
     const payload = { email: user.email, sub: user.id };
+
+    // 查找用户的角色
+    // const userRole = await this.prisma.userRole.findFirst({
+    //   where: {
+    //     userId: user.id,
+    //   },
+    // });
+
+    // 根据角色获取权限路由
+    const permissions = await this.prisma.rolePermission.findMany({
+      where: {
+        roleId: '1',
+      },
+      include: {
+        permission: true,
+      },
+    });
+
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, {
+        expiresIn: '7d',
+      }),
+      userInfo: {
+        ...user,
+        permissions: permissions.map((p) => p.permission),
+      },
     };
   }
 }

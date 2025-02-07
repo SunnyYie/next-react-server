@@ -15,4 +15,9 @@ export class UserController {
       body.permissionData,
     );
   }
+
+  @Post('getPermissions')
+  async getPermissions(@Body() body: { roleId: string }) {
+    return await this.userService.getPermissions(body.roleId);
+  }
 }

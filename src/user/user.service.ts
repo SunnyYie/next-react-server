@@ -31,4 +31,21 @@ export class UserService {
       },
     });
   }
+
+  async getPermissions(roleId: string) {
+    try {
+      const rolePermissions = await this.prisma.rolePermission.findMany({
+        where: { roleId },
+        include: {
+          permission: true,
+        },
+      });
+
+      const permissions = rolePermissions.map(rp => rp.permission);
+      return permissions;
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+      throw error;
+    }
+  }
 }
