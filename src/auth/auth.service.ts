@@ -69,11 +69,11 @@ export class AuthService {
     });
 
     return {
-      access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, {
+      accessToken: this.jwtService.sign(payload),
+      refreshToken: this.jwtService.sign(payload, {
         expiresIn: '7d',
       }),
-      userInfo: {
+      user: {
         ...user,
         permissions: permissions.map((p) => p.permission),
       },
