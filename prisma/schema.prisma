@@ -24,10 +24,9 @@ model Role {
   updatedAt DateTime @updatedAt
 
   // 角色与权限的关联
-  permissions RolePermission[]
-
-  // 角色与用户信息的关联
-  userInfos UserInfo[]
+  permissions        RolePermission[]
+  RolePermissionKeys RolePermissionKeys[]
+  User               User[]
 }
 
 model RolePermission {
@@ -62,9 +61,31 @@ model UserPermissions {
   updatedAt DateTime @updatedAt
 
   // 权限与角色的关联
-  roles      RolePermission[]
-  UserInfo   UserInfo?        @relation(fields: [userInfoId], references: [id])
-  userInfoId String?
+  roles RolePermission[]
+}
+
+model RolePermissionKeys {
+  id              String @id @default(uuid())
+  roleId          String
+  permissionKeyId String
+
+  role          Role           @relation(fields: [roleId], references: [id])
+  permissionKey PermissionKeys @relation(fields: [permissionKeyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, permissionKeyId]) // 确保角色和权限的组合唯一
+}
+
+model PermissionKeys {
+  id    String @id @default(uuid())
+  label String
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  
+  RolePermissionKeys RolePermissionKeys[]
 }
 
 model User {
@@ -75,30 +96,19 @@ model User {
   name   String?
   avatar String?
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  UserInfo  UserInfo[]
-  Tokens    Token[]
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Tokens Token[]
 }
 
 enum PermissionType {
   CATALOGUE @map("0")
   MENU      @map("1")
   BUTTON    @map("2")
-}
-
-model UserInfo {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  roleId String
-  role   Role   @relation(fields: [roleId], references: [id])
-
-  permissions UserPermissions[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Token {

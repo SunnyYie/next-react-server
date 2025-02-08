@@ -27,6 +27,7 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
+        roleId: '1',
       },
     });
 
@@ -51,20 +52,23 @@ export class AuthService {
     const user = await this.validateUser(email, password);
     const payload = { email: user.email, sub: user.id };
 
-    // 查找用户的角色
-    // const userRole = await this.prisma.userRole.findFirst({
-    //   where: {
-    //     userId: user.id,
-    //   },
-    // });
-
     // 根据角色获取权限路由
     const permissions = await this.prisma.rolePermission.findMany({
       where: {
-        roleId: '1',
+        roleId: user.roleId,
       },
       include: {
         permission: true,
+      },
+    });
+
+    // 获取权限标识
+    const permissionKeys = await this.prisma.rolePermissionKeys.findMany({
+      where: {
+        roleId: user.roleId,
+      },
+      include: {
+        permissionKey: true,
       },
     });
 
@@ -76,6 +80,7 @@ export class AuthService {
       user: {
         ...user,
         permissions: permissions.map((p) => p.permission),
+        permissionKeys: permissionKeys.map((p) => p.permissionKey),
       },
     };
   }
