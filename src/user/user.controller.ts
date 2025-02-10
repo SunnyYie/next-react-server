@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { Role, Roles } from 'src/decorator/roles.decorator';
 import { RolesGuard } from 'src/guard/roles.guard';
 import { PermissionKeys, UserPermissions } from '@prisma/client';
@@ -20,10 +28,33 @@ export class UserController {
     );
   }
 
+  @Get('getPermissionsAll')
+  // @Roles(Role.ADMIN)
+  async getPermissionsAll() {
+    return await this.userService.getPermissionsAll();
+  }
+
   @Post('getPermissions')
   // @Roles(Role.ADMIN, Role.USER)
   async getPermissions(@Body() body: { roleId: string }) {
     return await this.userService.getPermissions(body.roleId);
+  }
+
+  @Put('updatePermission')
+  // @Roles(Role.ADMIN)
+  async updatePermission(
+    @Body() body: { permissionId: string; permissionData: UserPermissions },
+  ) {
+    return await this.userService.updatePermissions(
+      body.permissionId,
+      body.permissionData,
+    );
+  }
+
+  @Delete('deletePermission')
+  // @Roles(Role.ADMIN)
+  async deletePermission(@Body() body: { permissionId: string }) {
+    return await this.userService.deletePermissions(body.permissionId);
   }
 
   @Post('createPermissionKey')

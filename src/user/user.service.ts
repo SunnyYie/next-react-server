@@ -44,6 +44,23 @@ export class UserService {
     return permissioms;
   }
 
+  // 获取全部权限
+  async getPermissionsAll() {
+    try {
+      // 将角色字段添加到查询结果中
+      const permissions = await this.prisma.userPermissions.findMany({
+        include: {
+          roles: true,
+        },
+      });
+      return permissions;
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+      throw error;
+    }
+  }
+
+  // 获取对应角色的权限
   async getPermissions(roleId: string) {
     try {
       const rolePermissions = await this.prisma.rolePermission.findMany({
@@ -57,6 +74,56 @@ export class UserService {
       return permissions;
     } catch (error) {
       console.error('Error fetching permissions:', error);
+      throw error;
+    }
+  }
+
+  // 更新权限
+  async updatePermissions(permissionId: string, permissionData: any) {
+    try {
+      if (permissionData.roleId) {
+        // 删除旧的权限与角色关联
+        await this.prisma.rolePermission.deleteMany({
+          where: { permissionId },
+        });
+
+        // 添加新的权限与角色关联
+        await this.prisma.rolePermission.create({
+          data: {
+            roleId: permissionData.roleId,
+            permissionId: permissionId,
+          },
+        });
+
+        delete permissionData.roleId;
+      }
+
+      const permission = await this.prisma.userPermissions.update({
+        where: { id: permissionId },
+        data: permissionData,
+      });
+      return permission;
+    } catch (error) {
+      console.error('Error updating permissions:', error);
+      throw error;
+    }
+  }
+
+  // 删除权限
+  async deletePermissions(permissionId: string) {
+    try {
+      // 删除权限与角色的关联
+      await this.prisma.rolePermission.deleteMany({
+        where: { permissionId },
+      });
+
+      const res = await this.prisma.userPermissions.delete({
+        where: { id: permissionId },
+      });
+
+      return res;
+    } catch (error) {
+      console.error('Error deleting permissions:', error);
       throw error;
     }
   }
