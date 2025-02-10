@@ -160,6 +160,23 @@ export class UserService {
     return keys;
   }
 
+  // 获取全部权限标识
+  async getPermissionKeysAll() {
+    try {
+      // 将角色字段添加到查询结果中
+      const permissionKeys = await this.prisma.permissionKeys.findMany({
+        include: {
+          RolePermissionKeys: true,
+        },
+      });
+      return permissionKeys;
+    } catch (error) {
+      console.error('Error fetching permissionKeys:', error);
+      throw error;
+    }
+  }
+
+  // 获取对应角色的权限标识
   async getPermissionKeys(roleId: string) {
     try {
       const rolePermissionKeys = await this.prisma.rolePermissionKeys.findMany({
@@ -173,6 +190,56 @@ export class UserService {
       return permissions;
     } catch (error) {
       console.error('Error fetching permissionKeys:', error);
+      throw error;
+    }
+  }
+
+  // 更新权限标识
+  async updatePermissionKeys(permissionKeyId: string, permissionKeyData: any) {
+    try {
+      if (permissionKeyData.roleId) {
+        // 删除旧的权限与角色关联
+        await this.prisma.rolePermissionKeys.deleteMany({
+          where: { permissionKeyId },
+        });
+
+        // 添加新的权限与角色关联
+        await this.prisma.rolePermissionKeys.create({
+          data: {
+            roleId: permissionKeyData.roleId,
+            permissionKeyId: permissionKeyId,
+          },
+        });
+
+        delete permissionKeyData.roleId;
+      }
+
+      const permissionKey = await this.prisma.permissionKeys.update({
+        where: { id: permissionKeyId },
+        data: permissionKeyData,
+      });
+
+      return permissionKey;
+    } catch (error) {
+      console.error('Error updating permissionKeys:', error);
+      throw error;
+    }
+  }
+  // 删除权限标识
+  async deletePermissionKeys(permissionKeyId: string) {
+    try {
+      // 删除权限与角色的关联
+      await this.prisma.rolePermissionKeys.deleteMany({
+        where: { permissionKeyId },
+      });
+
+      const res = await this.prisma.permissionKeys.delete({
+        where: { id: permissionKeyId },
+      });
+
+      return res;
+    } catch (error) {
+      console.error('Error deleting permissionKeys:', error);
       throw error;
     }
   }

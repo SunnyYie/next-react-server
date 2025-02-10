@@ -67,8 +67,32 @@ export class UserController {
     );
   }
 
+  @Get('getPermissionKeysAll')
+  async getPermissionKeysAll() {
+    return await this.userService.getPermissionKeysAll();
+  }
+
   @Post('getPermissionKeys')
   async getPermissionKeys(@Body() body: { roleId: string }) {
     return await this.userService.getPermissionKeys(body.roleId);
+  }
+
+  @Put('updatePermissionKey')
+  async updatePermissionKey(
+    @Body()
+    body: {
+      permissionKeyId: string;
+      permissionKeyData: PermissionKeys;
+    },
+  ) {
+    return await this.userService.updatePermissionKeys(
+      body.permissionKeyId,
+      body.permissionKeyData,
+    );
+  }
+
+  @Delete('deletePermissionKey')
+  async deletePermissionKey(@Body() body: { permissionKeyId: string }) {
+    return await this.userService.deletePermissionKeys(body.permissionKeyId);
   }
 }
