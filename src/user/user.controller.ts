@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role, Roles } from 'src/decorator/roles.decorator';
@@ -94,5 +95,30 @@ export class UserController {
   @Delete('deletePermissionKey')
   async deletePermissionKey(@Body() body: { permissionKeyId: string }) {
     return await this.userService.deletePermissionKeys(body.permissionKeyId);
+  }
+
+  @Post('createUser')
+  async createUser(@Body() body: any) {
+    return await this.userService.createUser(body);
+  }
+
+  @Get('getUsers')
+  async getUsers() {
+    return await this.userService.getUsers();
+  }
+
+  @Get('getUserDetail')
+  async getUserDetail(@Query() query: { id: string }) {
+    return await this.userService.getUserDetail(query.id);
+  }
+
+  @Put('updateUser')
+  async updateUser(@Body() body: { id: string; userData: any }) {
+    return await this.userService.updateUser(body.id, body.userData);
+  }
+
+  @Delete('deleteUser')
+  async deleteUser(@Body() body: { id: string }) {
+    return await this.userService.deleteUser(body.id);
   }
 }

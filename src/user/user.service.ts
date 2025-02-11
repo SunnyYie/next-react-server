@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { PermissionType } from '@prisma/client';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PermissionType, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -240,6 +241,90 @@ export class UserService {
       return res;
     } catch (error) {
       console.error('Error deleting permissionKeys:', error);
+      throw error;
+    }
+  }
+
+  // 创建用户
+  async createUser(userData: User) {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: userData.email },
+      });
+      if (existingUser) {
+        throw new ConflictException('User already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const user = await this.prisma.user.create({
+        data: {
+          ...userData,
+          password: hashedPassword,
+          roleId: String(userData.roleId),
+        },
+      });
+
+      return user;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  // 获取全部用户
+  async getUsers() {
+    try {
+      const users = await this.prisma.user.findMany({
+        include: {
+          role: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+  }
+
+  // 获取用户详情
+  async getUserDetail(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        include: {
+          role: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error('Error fetching user detail:', error);
+      throw error;
+    }
+  }
+
+  // 更新用户
+  async updateUser(userId: string, userData: any) {
+    try {
+      const user = await this.prisma.user.update({
+        where: { id: userId },
+        data: userData,
+      });
+      return user;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+
+  // 删除用户
+  async deleteUser(userId: string) {
+    try {
+      const res = await this.prisma.user.delete({
+        where: { id: userId },
+      });
+      return res;
+    } catch (error) {
+      console.error('Error deleting user:', error);
       throw error;
     }
   }
