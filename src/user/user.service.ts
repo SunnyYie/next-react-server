@@ -79,6 +79,22 @@ export class UserService {
     }
   }
 
+  // 条件查询权限
+  async getPermissionsByCondition(condition: any) {
+    try {
+      const permissions = await this.prisma.userPermissions.findMany({
+        where: condition,
+        include: {
+          roles: true,
+        },
+      });
+      return permissions;
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+      throw error;
+    }
+  }
+
   // 更新权限
   async updatePermissions(permissionId: string, permissionData: any) {
     try {

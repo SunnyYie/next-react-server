@@ -41,6 +41,11 @@ export class UserController {
     return await this.userService.getPermissions(body.roleId);
   }
 
+  @Post('getPermissionsByCondition')
+  async getPermissionsByCondition(@Body() body) {
+    return await this.userService.getPermissionsByCondition(body);
+  }
+
   @Put('updatePermission')
   // @Roles(Role.ADMIN)
   async updatePermission(
