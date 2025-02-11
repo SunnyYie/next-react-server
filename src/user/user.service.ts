@@ -117,7 +117,15 @@ export class UserService {
 
       const permission = await this.prisma.userPermissions.update({
         where: { id: permissionId },
-        data: permissionData,
+        data: {
+          ...permissionData,
+          type:
+            permissionData.type == 0
+              ? PermissionType.CATALOGUE
+              : permissionData.type == 1
+                ? PermissionType.MENU
+                : PermissionType.BUTTON,
+        },
       });
       return permission;
     } catch (error) {
