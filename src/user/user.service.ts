@@ -157,6 +157,7 @@ export class UserService {
     const keys = await this.prisma.permissionKeys.createMany({
       data: permissionKeys.map((permissionKey) => ({
         label: permissionKey.label,
+        name: permissionKey.name,
       })),
     });
 
@@ -213,6 +214,22 @@ export class UserService {
 
       const permissions = rolePermissionKeys.map((rp) => rp.permissionKey);
       return permissions;
+    } catch (error) {
+      console.error('Error fetching permissionKeys:', error);
+      throw error;
+    }
+  }
+
+  // 条件查询权限标识
+  async getPermissionKeysByCondition(condition: any) {
+    try {
+      const permissionKeys = await this.prisma.permissionKeys.findMany({
+        where: condition,
+        include: {
+          RolePermissionKeys: true,
+        },
+      });
+      return permissionKeys;
     } catch (error) {
       console.error('Error fetching permissionKeys:', error);
       throw error;

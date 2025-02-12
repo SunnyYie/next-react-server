@@ -81,10 +81,11 @@ model RolePermissionKeys {
 model PermissionKeys {
   id    String @id @default(uuid())
   label String
+  name  String
 
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   RolePermissionKeys RolePermissionKeys[]
 }
 

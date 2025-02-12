@@ -83,6 +83,11 @@ export class UserController {
     return await this.userService.getPermissionKeys(body.roleId);
   }
 
+  @Post('getPermissionKeysByCondition')
+  async getPermissionKeysByCondition(@Body() body) {
+    return await this.userService.getPermissionKeysByCondition(body);
+  }
+
   @Put('updatePermissionKey')
   async updatePermissionKey(
     @Body()
