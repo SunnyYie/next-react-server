@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('user')
-@UseGuards(RolesGuard)
+// @UseGuards(RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

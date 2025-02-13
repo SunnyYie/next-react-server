@@ -122,3 +122,20 @@ model Token {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model InterfaceLog {
+  id     String @id @default(uuid())
+  method String
+  url    String
+
+  params    String?
+  status    Int?
+  ip        String?
+  userAgent String?
+  referer   String?
+  userId    String?
+  os        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
