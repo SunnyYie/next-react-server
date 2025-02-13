@@ -224,7 +224,12 @@ export class UserService {
   async getPermissionKeysByCondition(condition: any) {
     try {
       const permissionKeys = await this.prisma.permissionKeys.findMany({
-        where: condition,
+        where: {
+          ...condition,
+          name: {
+            contains: condition.name,
+          },
+        },
         include: {
           RolePermissionKeys: true,
         },
@@ -339,6 +344,30 @@ export class UserService {
       return user;
     } catch (error) {
       console.error('Error fetching user detail:', error);
+      throw error;
+    }
+  }
+
+  // 条件查询用户
+  async getUsersByCondition(condition: any) {
+    try {
+      const users = await this.prisma.user.findMany({
+        where: {
+          ...condition,
+          email: {
+            contains: condition.email,
+          },
+          name: {
+            contains: condition.name,
+          },
+        },
+        include: {
+          role: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      console.error('Error fetching users:', error);
       throw error;
     }
   }

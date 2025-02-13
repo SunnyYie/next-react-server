@@ -9,12 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role, Roles } from 'src/decorator/roles.decorator';
-import { RolesGuard } from 'src/guard/roles.guard';
 import { PermissionKeys, UserPermissions } from '@prisma/client';
 import { UserService } from './user.service';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('user')
-// @UseGuards(RolesGuard)
+@UseGuards(RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -30,13 +30,13 @@ export class UserController {
   }
 
   @Get('getPermissionsAll')
-  // @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.admin)
   async getPermissionsAll() {
     return await this.userService.getPermissionsAll();
   }
 
   @Post('getPermissions')
-  // @Roles(Role.ADMIN, Role.USER)
+  @Roles(Role.ADMIN, Role.admin)
   async getPermissions(@Body() body: { roleId: string }) {
     return await this.userService.getPermissions(body.roleId);
   }
@@ -115,6 +115,11 @@ export class UserController {
   @Get('getUsers')
   async getUsers() {
     return await this.userService.getUsers();
+  }
+
+  @Get('getUsersByCondition')
+  async getUsersByCondition(@Query() query: any) {
+    return await this.userService.getUsersByCondition(query);
   }
 
   @Get('getUserDetail')

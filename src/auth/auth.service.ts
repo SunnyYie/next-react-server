@@ -50,7 +50,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, roleId: user.roleId };
 
     // 根据角色获取权限路由
     const permissions = await this.prisma.rolePermission.findMany({
